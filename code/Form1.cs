@@ -299,42 +299,8 @@ namespace pkglab62
             printAffineMatrix();
         }
 
-        private void bResetAffine_Click(object sender, EventArgs e)
-        {
-
-            for (int i = 0; i < 3; i++)
-            {
-                tbRotationOCS[i].Value = 0;
-                prevObjectAngles[i] = 0;
-                prevObjectCoords[i] = 0;
-            }
-            prevScale = 1;
-            affineTransform = new Matrix(4, 4);
-            for (int i = 0; i < 4; i++)
-            {
-                affineTransform[i, i] = 1;
-            }
-            pictureBox1.Invalidate();
-            printAffineMatrix();
-        }
-
-        private void bResetPicture_Click(object sender, EventArgs e)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                tbRotationGCS[i].Value = 0;
-                prevGlobalAngles[i] = 0;
-
-            }
-            prevDist = 1;
-            picturePlane = new Matrix(4, 4);
-            for (int i = 0; i < 4; i++)
-            {
-                picturePlane[i, i] = 1;
-            }
-            pictureBox1.Invalidate();
-            printAffineMatrix();
-        }
+        
+        
 
         private void rbp_CheckedChanged(object sender, EventArgs e)
         {
