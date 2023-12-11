@@ -10,10 +10,10 @@ namespace pkglab62
         public Form1()
         {
             InitializeComponent();
-            picturePlane = new Matrix(4, 4);
+            matrpp = new Matrix(4, 4);
             for (int i = 0; i < 3; i++)
             {
-                picturePlane[i, i] = 1;
+                matrpp[i, i] = 1;
             }
             scale = 30;
             letter = new List<KeyValuePair<Coordinates, Coordinates>>();
@@ -30,28 +30,11 @@ namespace pkglab62
             affineTransform[1, 1] = 1;
             affineTransform[2, 2] = 1;
             affineTransform[3, 3] = 1;
-            picturePlane = Graphics3D.rotateOx(0.67)
-                            * Graphics3D.rotateOy(0.47)
-                            * Graphics3D.rotateOz(0.34);
+            picturePlane = Gr3D.rotateOx(0.67) * Gr3D.rotateOy(0.47) * Gr3D.rotateOz(0.34);
             projection = projectionVariants[3];
-
             printAffineMatrix();
         }
-        int[] prevObjectAngles;
-        int[] prevGlobalAngles;
-        double[] prevObjectCoords;
-        double prevScale;
-        double prevDist;
-        TextBox[,] tbMatrix;
-        List<NumericUpDown> tbRotationOCS;
-        List<NumericUpDown> tbRotationGCS;
-        List<NumericUpDown> numUDTranslate;
-        Matrix affineTransform;
-        Matrix projection;
-        Matrix[] projectionVariants;
-        float scale;
-        PointF center;
-
+        
         void initializeContainers()
         {
             projectionVariants = new Matrix[4];
@@ -77,14 +60,14 @@ namespace pkglab62
                 {tb30, tb31, tb32, tb33},
             };
 
-            tbRotationOCS = new List<NumericUpDown>
+            nupdRotationOCS = new List<NumericUpDown>
             {
                 OOx,
                 OOy,
                 OOz
             };
 
-            tbRotationGCS = new List<NumericUpDown>
+            nupdRotationGCS = new List<NumericUpDown>
             {
                 GOx,
                 GOy,
@@ -103,7 +86,7 @@ namespace pkglab62
             prevObjectCoords = new double[3];
         }
 
-        public void printAffineMatrix()
+        public void showAffineMatrix()
         {
             for (int i = 0; i < 4; i++)
             {
@@ -176,6 +159,33 @@ namespace pkglab62
 
         }
 
+        private void rbf_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbf.Checked)
+            {
+                projection = projectionVariants[1];
+            }
+            pictureBox1.Invalidate();
+        }
+
+        private void rbh_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbh.Checked)
+            {
+                projection = projectionVariants[2];
+            }
+            pictureBox1.Invalidate();
+        }
+
+        private void rbn_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbn.Checked)
+            {
+                projection = projectionVariants[3];
+            }
+            pictureBox1.Invalidate();
+        }
+
         public void InitializeAxis()
         {
             axis.Add(new KeyValuePair<Coordinates, Coordinates>(new Coordinates(10, 0, 0), new Coordinates(-10, 0, 0)));
@@ -195,15 +205,14 @@ namespace pkglab62
             return p;
         }
 
-        Matrix picturePlane;
+        Matrix matrpp;
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
 
             center = new PointF(pictureBox1.Width / 2, pictureBox1.Height / 2);
             var gr = e.Graphics;
-            gr.SmoothingMode =
-            System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             PointF a, b;
             Pen pen = new Pen(Color.Blue, 3);
             for (int i = 0; i < letter.Count; i++)
@@ -216,9 +225,9 @@ namespace pkglab62
         }
         private void picturePlaneRotation()
         {
-            picturePlane = picturePlane * Graphics3D.rotateOx(Graphics3D.toRad((int)(tbRotationGCS[0].Value - prevGlobalAngles[0])))
-            * Graphics3D.rotateOy(Graphics3D.toRad((int)(tbRotationGCS[1].Value - prevGlobalAngles[1])))
-                    * Graphics3D.rotateOz(Graphics3D.toRad((int)(tbRotationGCS[2].Value - prevGlobalAngles[2])));
+            matrpp = matrpp * Gr3D.rotateOx(Gr3D.toRad((int)(tbRotationGCS[0].Value - prevGlobalAngles[0])))
+            * Gr3D.rotateOy(Gr3D.toRad((int)(tbRotationGCS[1].Value - prevGlobalAngles[1])))
+                    * Gr3D.rotateOz(Gr3D.toRad((int)(tbRotationGCS[2].Value - prevGlobalAngles[2])));
             for (int i = 0; i < 3; i++)
             {
                 prevGlobalAngles[i] = (int)tbRotationGCS[i].Value;
@@ -228,15 +237,15 @@ namespace pkglab62
 
         private void scaling(NumericUpDown numericUpDown)
         {
-            var mat = Graphics3D.Scaling((double)numericUpDown.Value);
+            var mat = Gr3D.Scaling((double)numericUpDown.Value);
             if (numericUpDown == numUDScale)
             {
-                affineTransform = affineTransform * Graphics3D.Scaling(1 / prevScale) * mat;
+                affineTransform = affineTransform * Gr3D.Scaling(1 / prevScale) * mat;
                 prevScale = (double)numericUpDown.Value;
             }
             else
             {
-                picturePlane = picturePlane * Graphics3D.Scaling(1 / prevDist) * mat;
+                matrpp = matrpp * Gr3D.Scaling(1 / prevDist) * mat;
                 prevDist = (double)numericUpDown.Value;
             }
 
@@ -244,19 +253,19 @@ namespace pkglab62
         }
         private void affineTranslate()
         {
-            affineTransform = affineTransform * Graphics3D.Translate(-prevObjectCoords[0], -prevObjectCoords[1], -prevObjectCoords[2]);
+            affineTransform = affineTransform * Gr3D.Translate(-prevObjectCoords[0], -prevObjectCoords[1], -prevObjectCoords[2]);
 
             for (int i = 0; i < 3; i++)
             {
                prevObjectCoords[i] = (double)numUDTranslate[i].Value;
             }
-            affineTransform = affineTransform * Graphics3D.Translate(prevObjectCoords[0], prevObjectCoords[1], prevObjectCoords[2]);
+            affineTransform = affineTransform * Gr3D.Translate(prevObjectCoords[0], prevObjectCoords[1], prevObjectCoords[2]);
         }
         private void affineRotation()
         {
-            affineTransform = affineTransform * Graphics3D.rotateOx(Graphics3D.toRad((int)(tbRotationOCS[0].Value - prevObjectAngles[0])))
-            * Graphics3D.rotateOy(Graphics3D.toRad((int)(tbRotationOCS[1].Value - prevObjectAngles[1])))
-                * Graphics3D.rotateOz(Graphics3D.toRad((int)(tbRotationOCS[2].Value - prevObjectAngles[2])));
+            affineTransform = affineTransform * Gr3D.rotateOx(Gr3D.toRad((int)(tbRotationOCS[0].Value - prevObjectAngles[0])))
+            * Gr3D.rotateOy(Gr3D.toRad((int)(tbRotationOCS[1].Value - prevObjectAngles[1])))
+                * Gr3D.rotateOz(Gr3D.toRad((int)(tbRotationOCS[2].Value - prevObjectAngles[2])));
             for (int i = 0; i < 3; i++)
             {
                 prevObjectAngles[i] = (int)tbRotationOCS[i].Value;
@@ -268,35 +277,35 @@ namespace pkglab62
         {
             affineRotation();
             pictureBox1.Invalidate();
-            printAffineMatrix();
+            showAffineMatrix();
         }
 
         private void tbGlobalAngles_ValueChanged(object sender, EventArgs e)
         {
             picturePlaneRotation();
             pictureBox1.Invalidate();
-            printAffineMatrix();
+            showAffineMatrix();
         }
 
         private void bTranslate_Click(object sender, EventArgs e)
         {
             affineTranslate();
             pictureBox1.Invalidate();
-            printAffineMatrix();
+            showAffineMatrix();
         }
 
         private void bScale_Click(object sender, EventArgs e)
         {
             scaling(numUDScale);
             pictureBox1.Invalidate();
-            printAffineMatrix();
+            showAffineMatrix();
         }
 
         private void bDist_Click(object sender, EventArgs e)
         {
             scaling(numUDDist);
             pictureBox1.Invalidate();
-            printAffineMatrix();
+            showAffineMatrix();
         }
 
         
@@ -318,8 +327,7 @@ namespace pkglab62
             pictureBox1.Invalidate();
         }
 
-        Point prevPosition;
-        Point curPosition;
+        
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             prevPosition = e.Location;
@@ -358,32 +366,23 @@ namespace pkglab62
             }
         }
 
-        private void rbf_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbf.Checked)
-            {
-                projection = projectionVariants[1];
-            }
-            pictureBox1.Invalidate();
-        }
-
-        private void rbh_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbh.Checked)
-            {
-                projection = projectionVariants[2];
-            }
-            pictureBox1.Invalidate();
-        }
-
-        private void rbn_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbn.Checked)
-            {
-                projection = projectionVariants[3];
-            }
-            pictureBox1.Invalidate();
-        }
+     int[] prevObjectAngles;
+        int[] prevGlobalAngles;
+        double[] prevObjectCoords;
+        double prevScale;
+        double prevDist;
+        TextBox[,] tbMatrix;
+        List<NumericUpDown> nupdRotationOCS;
+        List<NumericUpDown> nupdRotationGCS;
+        List<NumericUpDown> numUDTranslate;
+        Matrix affineTransform;
+        Matrix projection;
+        Matrix[] projectionVariants;
+        float scale;
+        PointF center;
+        Point prevPosition;
+        Point curPosition;
+   
 
         
     }
